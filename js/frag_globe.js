@@ -55,6 +55,14 @@
     var u_EarthSpecLocation;
     var u_BumpLocation;
     var u_timeLocation;
+    var u_waterSpecLocation;
+    var u_waterBumpLocation;
+    var u_skyboxFrontLocation;
+    var u_skyboxBackLocation;
+    var u_skyboxUpLocation;
+    var u_skyboxDownLocation;
+    var u_skyboxLeftLocation;
+    var u_skyboxRightLocation;
 
     (function initializeShader() {
         var vs = getShaderSource(document.getElementById("vs"));
@@ -76,7 +84,8 @@
         u_BumpLocation = gl.getUniformLocation(program,"u_Bump");
         u_timeLocation = gl.getUniformLocation(program,"u_time");
         u_CameraSpaceDirLightLocation = gl.getUniformLocation(program,"u_CameraSpaceDirLight");
-
+        u_waterSpecLocation = gl.getUniformLocation(program, "u_waterSpec");
+        u_waterBumpLocation = gl.getUniformLocation(program, "u_waterBump");
         gl.useProgram(program);
     })();
 
@@ -85,7 +94,9 @@
     var cloudTex = gl.createTexture();
     var transTex = gl.createTexture();
     var lightTex = gl.createTexture();
-    var specTex  = gl.createTexture();
+    var specTex = gl.createTexture();
+    var waterSpec = gl.createTexture();
+    var waterBump = gl.createTexture();
 
     function initLoadedTexture(texture){
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -286,6 +297,13 @@
         gl.activeTexture(gl.TEXTURE5);
         gl.bindTexture(gl.TEXTURE_2D, specTex);
         gl.uniform1i(u_EarthSpecLocation, 5);
+        gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_2D, waterSpec);
+        gl.uniform1i(u_waterSpecLocation, 6)
+        gl.activeTexture(gl.TEXTURE7);
+        gl.bindTexture(gl.TEXTURE_2D, waterBump);
+        gl.uniform1i(u_waterBumpLocation, 7);
+        
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
@@ -314,4 +332,6 @@
     initializeTexture(transTex, "assets/earthtrans1024.png");
     initializeTexture(lightTex, "assets/earthlight1024.png");
     initializeTexture(specTex, "assets/earthspec1024.png");
+    initializeTexture(waterBump, "assets/normalmap.png");
+    initializeTexture(waterSpec, "assets/wavemap18.png");
 }());
