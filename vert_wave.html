@@ -1,4 +1,4 @@
-<html>
+﻿<html>
 
 <head>
 <title>Vertex Wave</title>
@@ -15,14 +15,21 @@
 
 <script id="vs" type="x-shader/x-vertex">
     attribute vec2 position;
-    
+   
     uniform mat4 u_modelViewPerspective;
-    
+    uniform float u_time;
+    uniform vec4 u_color0;
+    uniform vec4 u_color1;
+
+    varying vec4 v_color;
+
     void main(void)
     {
       // NOTE : according to the WebGL standard, 0.0f is not accepted
-		  float height = 0.0;
-
+        float s_contrib = sin(position.x*2.0*3.14159 + u_time);
+        float t_contrib = cos(position.y*2.0*3.14159 + u_time);
+        float height = s_contrib*t_contrib;
+        v_color = mix(u_color0 / 256.0, u_color1 /256.0, (height + 1.0) / 2.0);
       // NOTE : gl_Position is always a vec4
 		  gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
     }
@@ -32,11 +39,12 @@
     precision mediump float;
 
     uniform vec4 u_color;
+    varying vec4 v_color;
 
     void main(void)
     {
       // NOTE : gl_FragColor is always a vec4
-		  gl_FragColor = u_color;
+		  gl_FragColor = v_color;
     }    
 </script>
 
@@ -44,9 +52,11 @@
   // Globals
   var positionLocation = 0;
   var heightLocation = 1;
+  var timeLocation = 2;
   var u_modelViewPerspectiveLocation;
-  var u_color;
-  
+  var uColor0Loaction = 0;
+  var uColor1Location = 0;
+  var time = 0;
   var heights;
   var numberOfIndices;
   
@@ -61,15 +71,26 @@
   var message;
   var canvas;
   var context;
+  var FizzyText = function () {
+
+      this.color0 = [180.0, 80.0, 30.0, 255.0]; // CSS string
+      this.color1 = [0.0, 128.0, 255.0, 255.0]; // RGB array
+
+
+      // Define render logic ...
+
+  };
+  var guiText = new FizzyText();
 
   var persp = mat4.create();
   var view = mat4.create();
-    
+  
   // Function called when the window is loaded
   window.onload = function() {
-    // Add GUI component 
+      // Add GUI component 
     var gui = new dat.GUI();
-
+    gui.addColor(guiText, 'color0');
+    gui.addColor(guiText, 'color1');
     init();
 
     animate();
@@ -99,7 +120,9 @@
 
 
   function animate(){
-    // Update
+      // Update
+     time += 0.02;
+     
     var model = mat4.create();
     mat4.identity(model);
     mat4.translate(model, [-0.5, -0.5, 0.0]);
@@ -108,9 +131,13 @@
     var mvp = mat4.create();
     mat4.multiply(persp, mv, mvp);
 
+    
     // Render  
     context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-
+   
+    context.uniform4fv(uColor0Loaction, guiText.color0);
+    context.uniform4fv(uColor1Location, guiText.color1);
+    context.uniform1f(timeLocation, time);
     context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp); 
     context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
 
@@ -126,7 +153,9 @@
 		context.bindAttribLocation(program, positionLocation, "position");
 		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
     u_colorLocation = context.getUniformLocation(program, "u_color");
-
+    timeLocation = context.getUniformLocation(program, "u_time");
+    uColor0Loaction = context.getUniformLocation(program, "u_color0");
+    uColor1Location = context.getUniformLocation(program, "u_color1");
     context.useProgram(program);
   }
 
