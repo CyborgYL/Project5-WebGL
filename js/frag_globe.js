@@ -289,6 +289,7 @@
         gl.drawElements(gl.TRIANGLES, numberOfIndices, gl.UNSIGNED_SHORT,0);
 
         time += 0.001;
+        gl.uniform1f(u_timeLocation, time);
         window.requestAnimFrame(animate);
     }
 
