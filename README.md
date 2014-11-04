@@ -2,6 +2,7 @@
 CIS565: Project 5: WebGL
 -------------------------------------------------------------------------------
 Fall 2014
+![Completed globe, day side](resources/Cover.png)
 ![Completed globe, day side](resources/indicator.png)
 -------------------------------------------------------------------------------
 Playable WebGL demo:
@@ -58,5 +59,6 @@ Figure 2. Completed globe renderer, night side.
 
 #PERFORMANCE EVALUATION
 -Always 60 fps on Desktop PC with GTX780, notebook with GT650M, or iphone 5s.
+![performance](resources/fps.png)
 #Third Party Code
 -In drawing skybox, cube vectices and index matrix from http://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_06
