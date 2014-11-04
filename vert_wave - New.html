@@ -1,0 +1,244 @@
+﻿<html>
+
+<head>
+<title>Vertex Wave</title>
+<meta charset ="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE --> 
+</head>
+
+<body>
+<div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
+<canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
+<script src ="js/lib/gl-matrix.js" type ="text/javascript"></script>
+<script src ="js/webGLUtility.js" type ="text/javascript"></script>
+<script src="js/lib/dat.gui.min.js" type="text/javascript"></script>
+
+<script id="vs" type="x-shader/x-vertex">
+    attribute vec2 position;
+   
+    uniform mat4 u_modelViewPerspective;
+    uniform float u_time;
+    uniform vec4 u_color0;
+    uniform vec4 u_color1;
+
+    varying vec4 v_color;
+
+    void main(void)
+    {
+      // NOTE : according to the WebGL standard, 0.0f is not accepted
+        float s_contrib = exp(-pow(position.x - u_time, 2.0));
+        float t_contrib = exp(-pow(position.y - u_time, 2.0));
+        float height = s_contrib*t_contrib;
+        v_color = mix(u_color0 / 256.0, u_color1 /256.0, (height + 1.0) / 2.0);
+      // NOTE : gl_Position is always a vec4
+		gl_Position = u_modelViewPerspective * vec4(vec3(position, height), 1.0);
+    }
+</script>
+
+<script id="fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    uniform vec4 u_color;
+    varying vec4 v_color;
+
+    void main(void)
+    {
+      // NOTE : gl_FragColor is always a vec4
+		  gl_FragColor = v_color;
+    }    
+</script>
+
+<script>
+  // Globals
+  var positionLocation = 0;
+  var heightLocation = 1;
+  var timeLocation = 2;
+  var u_modelViewPerspectiveLocation;
+  var uColor0Loaction = 0;
+  var uColor1Location = 0;
+  var time = 0;
+  var heights;
+  var numberOfIndices;
+  
+  var eye = [2.0, 1.0, 3.0];
+  var center = [0.0, 0.0, 0.0];
+  var up = [0.0, 0.0, 1.0];
+
+
+  var NUM_WIDTH_PTS = 32;
+  var NUM_HEIGHT_PTS = 32;
+
+  var message;
+  var canvas;
+  var context;
+  var FizzyText = function () {
+
+      this.color0 = [180.0, 80.0, 30.0, 255.0]; // CSS string
+      this.color1 = [0.0, 128.0, 255.0, 255.0]; // RGB array
+
+
+      // Define render logic ...
+
+  };
+  var guiText = new FizzyText();
+
+  var persp = mat4.create();
+  var view = mat4.create();
+  
+  // Function called when the window is loaded
+  window.onload = function() {
+      // Add GUI component 
+    var gui = new dat.GUI();
+    gui.addColor(guiText, 'color0');
+    gui.addColor(guiText, 'color1');
+    init();
+
+    animate();
+  };
+
+  function init() {
+    message = document.getElementById("message");
+    canvas = document.getElementById("canvas");
+    context = createWebGLContext(canvas, message);
+
+    if (!context) {
+      return;
+    }
+
+    // SET UP WEBGL CONTEXT
+    context.viewport(0, 0, canvas.width, canvas.height);
+    context.clearColor(1.0, 1.0, 1.0, 1.0);
+    context.enable(context.DEPTH_TEST);
+
+    mat4.perspective(45.0, 0.5, 0.1, 100.0, persp);
+
+    mat4.lookAt(eye, center, up, view);
+    
+    initializeShader();
+    initializeGrid(); 
+  }
+
+
+  function animate(){
+      // Update
+      time += 0.02;
+      if (time > 3.0)
+          time = 0.0;
+     
+    var model = mat4.create();
+    mat4.identity(model);
+    mat4.translate(model, [-0.5, -0.5, 0.0]);
+    var mv = mat4.create();
+    mat4.multiply(view, model, mv);
+    var mvp = mat4.create();
+    mat4.multiply(persp, mv, mvp);
+
+    
+    // Render  
+    context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
+   
+    context.uniform4fv(uColor0Loaction, guiText.color0);
+    context.uniform4fv(uColor1Location, guiText.color1);
+    context.uniform1f(timeLocation, time);
+    context.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp); 
+    context.drawElements(context.LINES, numberOfIndices, context.UNSIGNED_SHORT,0);
+
+    window.requestAnimFrame(animate);
+  }
+
+  function initializeShader() {
+    var program;
+    var vs = getShaderSource(document.getElementById("vs"));
+    var fs = getShaderSource(document.getElementById("fs"));
+
+		var program = createProgram(context, vs, fs, message);
+		context.bindAttribLocation(program, positionLocation, "position");
+		u_modelViewPerspectiveLocation = context.getUniformLocation(program,"u_modelViewPerspective");
+    u_colorLocation = context.getUniformLocation(program, "u_color");
+    timeLocation = context.getUniformLocation(program, "u_time");
+    uColor0Loaction = context.getUniformLocation(program, "u_color0");
+    uColor1Location = context.getUniformLocation(program, "u_color1");
+    context.useProgram(program);
+  }
+
+  function initializeGrid() {
+    function uploadMesh(positions, heights, indices) {
+      // Positions
+      var positionsName = context.createBuffer();
+      context.bindBuffer(context.ARRAY_BUFFER, positionsName);
+      context.bufferData(context.ARRAY_BUFFER, positions, context.STREAM_DRAW);
+      context.vertexAttribPointer(positionLocation, 2, context.FLOAT, false, 0, 0);
+      context.enableVertexAttribArray(positionLocation);
+
+      if (heights){
+        // Heights
+        var heightsName = context.createBuffer();
+        context.bindBuffer(context.ARRAY_BUFFER, heightsName);
+        context.bufferData(context.ARRAY_BUFFER, heights.length *
+                            heights.BYTES_PER_ELEMENT, context.STATIC_DRAW);
+        context.vertexAttribPointer(heightLocation, 1, context.FLOAT, false, 0, 0);
+        context.enableVertexAttribArray(heightLocation);
+      }
+
+      // Indices
+      var indicesName = context.createBuffer();
+      context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, indicesName);
+      context.bufferData(context.ELEMENT_ARRAY_BUFFER, indices, context.STATIC_DRAW);
+    }
+
+    var WIDTH_DIVISIONS = NUM_WIDTH_PTS - 1;
+    var HEIGHT_DIVISIONS = NUM_HEIGHT_PTS - 1;
+
+    var numberOfPositions = NUM_WIDTH_PTS * NUM_HEIGHT_PTS;
+
+    var positions = new Float32Array(2 * numberOfPositions);
+    var indices = new Uint16Array(2 * ((NUM_HEIGHT_PTS * (NUM_WIDTH_PTS - 1)) +
+                                (NUM_WIDTH_PTS * (NUM_HEIGHT_PTS - 1))));
+
+    var positionsIndex = 0;
+    var indicesIndex = 0;
+    var length;
+
+    for (var j = 0; j < NUM_WIDTH_PTS; ++j){
+      positions[positionsIndex++] = j /(NUM_WIDTH_PTS - 1);
+      positions[positionsIndex++] = 0.0;
+
+      if (j>=1){
+        length = positionsIndex / 2;
+        indices[indicesIndex++] = length - 2;
+        indices[indicesIndex++] = length - 1;
+      }
+    }
+
+    for (var i = 0; i < HEIGHT_DIVISIONS; ++i){
+      var v = (i + 1) / (NUM_HEIGHT_PTS - 1);
+      positions[positionsIndex++] = 0.0;
+      positions[positionsIndex++] = v;
+
+      length = (positionsIndex / 2);
+      indices[indicesIndex++] = length - 1;
+      indices[indicesIndex++] = length - 1 - NUM_WIDTH_PTS;
+
+      for (var k = 0; k < WIDTH_DIVISIONS; ++k){
+        positions[positionsIndex++] = (k + 1) / (NUM_WIDTH_PTS - 1);
+        positions[positionsIndex++] = v;
+
+        length = positionsIndex / 2;
+        var new_pt = length - 1;
+        indices[indicesIndex++] = new_pt - 1;  // Previous side
+        indices[indicesIndex++] = new_pt;
+
+        indices[indicesIndex++] = new_pt - NUM_WIDTH_PTS;  // Previous bottom
+        indices[indicesIndex++] = new_pt;
+      }
+    }
+
+    uploadMesh(positions, heights, indices);
+    numberOfIndices = indices.length;
+}
+
+</script>
+
+</body>
+
+</html>
