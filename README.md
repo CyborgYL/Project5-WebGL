@@ -6,8 +6,11 @@ Fall 2014
 ![Completed globe, day side](resources/indicator.png)
 -------------------------------------------------------------------------------
 Playable WebGL demo:
+
 http://cyborgyl.github.io/Project5-WebGL/
+
 video: http://youtu.be/qQ6FPbbUMQw
+
 In Part 1, you are given code for:
 
 * Drawing a VBO through WebGL
