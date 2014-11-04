@@ -55,27 +55,7 @@ Figure 0. Completed globe renderer, daylight side.
 Figure 1. Completed globe renderer, twilight border.
 ![Completed globe, night side](resources/night.png)
 Figure 2. Completed globe renderer, night side.
--------------------------------------------------------------------------------
-GH-PAGES
--------------------------------------------------------------------------------
-Since this assignment is in WebGL you will make your project easily viewable by 
-taking advantage of GitHub's project pages feature.
 
-Once you are done you will need to create a new branch named gh-pages:
-
-`git branch gh-pages`
-
-Switch to your new branch:
-
-`git checkout gh-pages`
-
-Create an index.html file that is either your renamed frag_globe.html or 
-contains a link to it, commit, and then push as usual. Now you can go to 
-
-`<user_name>.github.io/<project_name>` 
-
-to see your beautiful globe from anywhere.
----
 #PERFORMANCE EVALUATION
 ---
 Always 60 fps on Desktop PC with GTX780, notebook with GT650M, or iphone 5s.
