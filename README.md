@@ -73,23 +73,10 @@ contains a link to it, commit, and then push as usual. Now you can go to
 `<user_name>.github.io/<project_name>` 
 
 to see your beautiful globe from anywhere.
-
--------------------------------------------------------------------------------
-README
--------------------------------------------------------------------------------
-All students must replace or augment the contents of this Readme.md in a clear 
-manner with the following:
-
-* A brief description of the project and the specific features you implemented.
-* At least one screenshot of your project running.
-* A 30 second or longer video of your project running.  To create the video you
-  can use http://www.microsoft.com/expression/products/Encoder4_Overview.aspx 
-* A performance evaluation (described in detail below).
-
--------------------------------------------------------------------------------
-PERFORMANCE EVALUATION
--------------------------------------------------------------------------------
--Always 60 fps on Desktop PC with GTX780, notebook with GT650M, or iphone 5s.
+---
+#PERFORMANCE EVALUATION
+---
+Always 60 fps on Desktop PC with GTX780, notebook with GT650M, or iphone 5s.
 ---
 #Third Party Code
 -In drawing skybox, cube vectices and index matrix from http://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_06
