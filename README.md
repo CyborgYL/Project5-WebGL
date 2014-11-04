@@ -2,10 +2,7 @@
 CIS565: Project 5: WebGL
 -------------------------------------------------------------------------------
 Fall 2014
--------------------------------------------------------------------------------
-Due Monday 11/03/2014
--------------------------------------------------------------------------------
-PART 1 REQUIREMENTS:
+![Completed globe, day side](resources/indicator.png)
 -------------------------------------------------------------------------------
 
 In Part 1, you are given code for:
@@ -25,7 +22,7 @@ You are required to implement the following:
 -------------------------------------------------------------------------------
 PART 2 REQUIREMENTS:
 -------------------------------------------------------------------------------
-In Part 2, you are given code for:
+In Part 2, given code:
 
 * Reading and loading textures
 * Rendering a sphere with textures mapped on
@@ -36,7 +33,7 @@ In Part 2, you are given code for:
   * left-click and drag moves the camera around
   * right-click and drag moves the camera in and out
 
-You are required to implement:
+Features implemented:
 
 * Bump mapped terrain
 * Rim lighting to simulate atmosphere
@@ -47,16 +44,8 @@ You are required to implement:
 You are also required to pick one open-ended effect to implement:
 
 * Procedural water rendering and animation using noise 
-* Shade based on altitude using the height map
-* Cloud shadows via ray-tracing through the cloud map in the fragment shader
-* Orbiting Moon with texture mapping and shadow casting onto Earth
 * Draw a skybox around the entire scene for the stars.
-* Your choice! Email Liam and Patrick to get approval first
-
-Finally in addition to your readme, you must also set up a gh-pages branch 
-(explained below) to expose your beautiful WebGL globe to the world.
-
-Some examples of what your completed globe renderer will look like:
+* Dawn and twillight color blending
 
 ![Completed globe, day side](resources/indicator.png)
 Figure 0. Completed globe renderer, daylight side.
@@ -116,35 +105,9 @@ In this homework, we do not expect crazy performance evaluation in terms of
 optimizations.  However, it would be good to take performance benchmarks at
 every step in this assignment to see how complicated fragment shaders affect the
 overall speed.  You can do this by using stats.js.
-
--------------------------------------------------------------------------------
-THIRD PARTY CODE POLICY
--------------------------------------------------------------------------------
-* Use of any third-party code must be approved by asking on the Google groups.  
-  If it is approved, all students are welcome to use it.  Generally, we approve 
-  use of third-party code that is not a core part of the project.  For example, 
-  for the ray tracer, we would approve using a third-party library for loading 
-  models, but would not approve copying and pasting a CUDA function for doing 
-  refraction.
-* Third-party code must be credited in README.md.
-* Using third-party code without its approval, including using another 
-  student's code, is an academic integrity violation, and will result in you 
-  receiving an F for the semester.
-
--------------------------------------------------------------------------------
-SELF-GRADING
--------------------------------------------------------------------------------
-* On the submission date, email your grade, on a scale of 0 to 100, to Harmony, 
-  harmoli+cis565@seas.upenn.com, with a one paragraph explanation.  Be concise and 
-  realistic.  Recall that we reserve 30 points as a sanity check to adjust your 
-  grade.  Your actual grade will be (0.7 * your grade) + (0.3 * our grade).  We 
-  hope to only use this in extreme cases when your grade does not realistically 
-  reflect your work - it is either too high or too low.  In most cases, we plan 
-  to give you the exact grade you suggest.
-* Projects are not weighted evenly, e.g., Project 0 doesn't count as much as 
-  the path tracer.  We will determine the weighting at the end of the semester 
-  based on the size of each project.
-
+---
+#Third Party Code
+In drawing skybox, cube vectices and index matrix from http://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_06
 ---
 SUBMISSION
 ---
