@@ -4,6 +4,8 @@ CIS565: Project 5: WebGL
 Fall 2014
 ![Completed globe, day side](resources/indicator.png)
 -------------------------------------------------------------------------------
+Playable WebGL demo:
+http://cyborgyl.github.io/Project5-WebGL/
 
 In Part 1, you are given code for:
 
