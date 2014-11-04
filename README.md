@@ -57,8 +57,6 @@ Figure 1. Completed globe renderer, twilight border.
 Figure 2. Completed globe renderer, night side.
 
 #PERFORMANCE EVALUATION
----
-Always 60 fps on Desktop PC with GTX780, notebook with GT650M, or iphone 5s.
----
+-Always 60 fps on Desktop PC with GTX780, notebook with GT650M, or iphone 5s.
 #Third Party Code
 -In drawing skybox, cube vectices and index matrix from http://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_06
