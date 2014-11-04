@@ -10,6 +10,9 @@
 
         return [x,y,z];
     }
+    var FPS = 0;
+    var ticks = 0;
+    var lastFPS = 0;
 
     var NUM_WIDTH_PTS = 64;
     var NUM_HEIGHT_PTS = 64;
@@ -59,11 +62,11 @@
     var u_waterBumpLocation;
 
     var u_skyboxLocation = new Array();
+    //var u_skyboxInvTransLocation;
     var u_skyboxModelLocation;
     var u_skyboxViewLocation;
     var u_skyboxPerspLocation;
-    //var u_skyboxInvTransLocation;
-    var u_skyboxPosLocation;
+    var skyboxPosLocation;
 
     var program;
     var skyboxProgram;
@@ -92,12 +95,12 @@
         u_waterBumpLocation = gl.getUniformLocation(program, "u_waterBump");
 
         //render skybox
-        var skyboxvs = getShaderSource(document.getElementById("skyboxvs"));
-        var skyboxfs = getShaderSource(document.getElementById("skyboxfs"));
+        vs = getShaderSource(document.getElementById("skyboxvs"));
+        fs = getShaderSource(document.getElementById("skyboxfs"));
 
-        skyboxProgram = createProgram(gl, skyboxvs, skyboxfs, message);
+        skyboxProgram = createProgram(gl, vs, fs, message);
         u_skyboxLocation[0] = gl.getUniformLocation(skyboxProgram, "u_Skybox");
-        u_skyboxPosLocation = gl.getAttribLocation(skyboxProgram, "Position");
+        skyboxPosLocation = gl.getAttribLocation(skyboxProgram, "Position");
         u_skyboxModelLocation = gl.getUniformLocation(skyboxProgram, "u_Model");
         u_skyboxViewLocation = gl.getUniformLocation(skyboxProgram, "u_View");
         u_skyboxPerspLocation = gl.getUniformLocation(skyboxProgram, "u_Persp");
@@ -127,17 +130,17 @@
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
-    function initLoadedCubeMapTexture(texture, face, image) {
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.REPEAT);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-    }
+    //function initLoadedCubeMapTexture(texture, face, image) {
+    //    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    //    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    //    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    //    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    //    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    //    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    //    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    //    gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    //    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+    //}
     // cube vectices and index matrix from http://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_06
     var cubePositionBuffer;
     var cubeIndexBuffer;
@@ -203,32 +206,35 @@
     )();
 
     var numberOfIndices;
-
+    var positionsName;
+    var normalsName;
+    var texCoordsName;
+    var indicesName;
     (function initializeSphere() {
         function uploadMesh(positions, texCoords, indices) {
             // Positions
-            var positionsName = gl.createBuffer();
+            positionsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
             gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(positionLocation);
             
             // Normals
-            var normalsName = gl.createBuffer();
+            normalsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
             gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
             gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(normalLocation);
             
             // TextureCoords
-            var texCoordsName = gl.createBuffer();
+            texCoordsName = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
             gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
             gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(texCoordLocation);
 
             // Indices
-            var indicesName = gl.createBuffer();
+            indicesName = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesName);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
         }
@@ -341,10 +347,9 @@
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
-
         var model = mat4.create();
         mat4.identity(model);
-        mat4.rotate(model, 23.4/180*Math.PI, [0.0, 0.0, 1.0]);
+        mat4.rotate(model, 23.4 / 180 * Math.PI, [0.0, 0.0, 1.0]);
         mat4.rotate(model, Math.PI, [1.0, 0.0, 0.0]);
         mat4.rotate(model, -time, [0.0, 1.0, 0.0]);
         var mv = mat4.create();
@@ -358,18 +363,63 @@
         var lightdest = vec4.create();
         vec3.normalize(lightdir);
         mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
-        lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
+        lightdir = vec3.createFrom(lightdest[0], lightdest[1], lightdest[2]);
         vec3.normalize(lightdir);
 
+        //Render skybox
+        //var skyModel = mat4.create();
+        //mat4.identity(skyModel);
+        //var skyMV = mat4.create();
+        //mat4.multiply(view, skyModel, skyMV);
+
+        //mat4.scale(skyModel, vec3.create([50.0, 50.0, 50.0]));
+        //mat4.multiply(view, skyModel, skyMV);
+
+        //invTrans = mat4.create();
+        //mat4.inverse(mv, invTrans);
+        //mat4.transpose(invTrans);
+
+        //gl.useProgram(skyboxProgram);
+        //gl.enableVertexAttribArray(skyboxPosLocation);
+
+
+        //gl.bindBuffer(gl.ARRAY_BUFFER, cubePositionBuffer);
+        //gl.vertexAttribPointer(skyboxPosLocation, cubePositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        //gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
+
+        //gl.uniformMatrix4fv(u_skyboxModelLocation, false, skyModel);
+        //gl.uniformMatrix4fv(u_skyboxViewLocation, false, view);
+        //gl.uniformMatrix4fv(u_skyboxPerspLocation, false, persp);
+        ////gl.uniformMatrix4fv(u_skyboxInvTransLocation, false, invTrans);
+
+        //gl.activeTexture(gl.TEXTURE0);
+        //gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+        //gl.uniform1i(u_skyboxLocation[0], 0);
+
+        //gl.drawElements(gl.TRIANGLES, cubeIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+        //gl.disableVertexAttribArray(skyboxPosLocation);
+
         ///////////////////////////////////////////////////////////////////////////
-        
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         ///////////////////////////////////
         // Render the earth
         gl.useProgram(program);
         gl.enableVertexAttribArray(positionLocation);
         gl.enableVertexAttribArray(normalLocation);
         gl.enableVertexAttribArray(texCoordLocation);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionsName);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalsName);
+        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsName);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesName);
 
         gl.uniformMatrix4fv(u_ModelLocation, false, model);
         gl.uniformMatrix4fv(u_ViewLocation, false, view);
@@ -408,9 +458,8 @@
         gl.disableVertexAttribArray(positionLocation);
         gl.disableVertexAttribArray(normalLocation);
         gl.disableVertexAttribArray(texCoordLocation);
-
         //Render skybox
-        gl.useProgram(skyboxProgram);
+        //scale the box first
         mat4.scale(model, vec3.create([50.0, 50.0, 50.0]));
         mat4.multiply(view, model, mv);
 
@@ -418,33 +467,40 @@
         mat4.inverse(mv, invTrans);
         mat4.transpose(invTrans);
 
-       
-        gl.enableVertexAttribArray(u_skyboxPosLocation);
+        gl.useProgram(skyboxProgram);
+        gl.enableVertexAttribArray(skyboxPosLocation);
 
 
         gl.bindBuffer(gl.ARRAY_BUFFER, cubePositionBuffer);
-        gl.vertexAttribPointer(u_skyboxPosLocation, cubePositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(skyboxPosLocation, cubePositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
 
         gl.uniformMatrix4fv(u_skyboxModelLocation, false, model);
         gl.uniformMatrix4fv(u_skyboxViewLocation, false, view);
         gl.uniformMatrix4fv(u_skyboxPerspLocation, false, persp);
-        //gl.uniformMatrix4fv(u_skyboxInvTransLocation, false, invTrans);
+        //gl.uniformMatrix4fv(u_skyInvTransLocation, false, invTrans);
 
-        gl.activeTexture(gl.TEXTURE8);
+        gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
-        gl.uniform1i(u_skyboxLocation[0], 8);
+        gl.uniform1i(u_skyboxLocation[0], 0);
 
         gl.drawElements(gl.TRIANGLES, cubeIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
-        gl.disableVertexAttribArray(u_skyboxPosLocation);
-
+        gl.disableVertexAttribArray(skyboxPosLocation);
 
         gl.useProgram(program);
         time += 0.001;
         gl.uniform1f(u_timeLocation, time);
         window.requestAnimFrame(animate);
+        var now = Date.now();
+        if (now - lastFPS >= 1000) {
+            lastFPS = now;
+            FPS = ticks;
+            ticks = 0;
+            document.getElementById("FPS").innerHTML = 'FPS=' + FPS;
+        }
+        ticks++;
     }
 
     var textureCount = 0;
@@ -492,14 +548,13 @@
         }
     }
 
-    //front back up down right left
-    skyboxfaces[0] = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, "assets/space_ft.jpg"];
-    skyboxfaces[1] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "assets/space_bk.jpg"];
-    skyboxfaces[2] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "assets/space_up.jpg"];
-    skyboxfaces[3] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "assets/space_dn.jpg"];
-    skyboxfaces[4] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "assets/space_dn.jpg"];
-    skyboxfaces[5] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "assets/space_dn.jpg"];
+    skyboxFaces[0] = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, "assets/GalaxyLf.png"];
+    skyboxFaces[1] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "assets/GalaxyRt.png"];
+    skyboxFaces[2] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "assets/GalaxyUp.png"];
+    skyboxFaces[3] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "assets/GalaxyDn.png"];
+    skyboxFaces[4] = [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "assets/GalaxyFt.png"];
+    skyboxFaces[5] = [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "assets/GalaxyBk.png"];
 
-    initCubeTextrue(skyboxTex, skyboxfaces);
+    initCubeTextrue(skyboxTex, skyboxFaces);
 
 }());
