@@ -89,38 +89,7 @@ manner with the following:
 -------------------------------------------------------------------------------
 PERFORMANCE EVALUATION
 -------------------------------------------------------------------------------
-The performance evaluation is where you will investigate how to make your 
-program more efficient using the skills you've learned in class. You must have
-performed at least one experiment on your code to investigate the positive or
-negative effects on performance. 
-
-We encourage you to get creative with your tweaks. Consider places in your code
-that could be considered bottlenecks and try to improve them. 
-
-Each student should provide no more than a one page summary of their
-optimizations along with tables and or graphs to visually explain any
-performance differences.
-
-In this homework, we do not expect crazy performance evaluation in terms of
-optimizations.  However, it would be good to take performance benchmarks at
-every step in this assignment to see how complicated fragment shaders affect the
-overall speed.  You can do this by using stats.js.
+Always 60 fps on Desktop PC with GTX780, notebook with GT650M, or iphone 5s.
 ---
 #Third Party Code
-In drawing skybox, cube vectices and index matrix from http://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_06
----
-SUBMISSION
----
-As with the previous project, you should fork this project and work inside of
-your fork. Upon completion, commit your finished project back to your fork, and
-make a pull request to the master repository.  You should include a README.md
-file in the root directory detailing the following
-
-* A brief description of the project and specific features you implemented
-* At least one screenshot of your project running.
-* A link to a video of your project running.
-* Instructions for building and running your project if they differ from the
-  base code.
-* A performance writeup as detailed above.
-* A list of all third-party code used.
-* This Readme file edited as described above in the README section.
+-In drawing skybox, cube vectices and index matrix from http://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_06
