@@ -48,6 +48,8 @@
         // Detect if browser supports WebGL
         if (!window.WebGLRenderingContext) {
             message.innerText = "The browser does not support WebGL.  Visit http://get.webgl.org.";
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
             return undefined;
         }
         var options = { alpha: false };        

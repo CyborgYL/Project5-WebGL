@@ -1,5 +1,21 @@
 <html>
-
+<style>
+    body, html {
+    background-color: #000;
+    color: #fff;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+#message{
+	height: 200px;
+}
+canvas {
+    position:absolute;
+}
+</style>
 <head>
 <title>Fragment Globe</title>
 <meta charset ="utf-8">
@@ -7,9 +23,10 @@
 </head>
 
 <body>
-<div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
-<canvas id="canvas" style="border: none;" width="1024" height="768" tabindex="1"></canvas>
- </br>
+<div id="message" >
+</div> <!-- Pixel offset to avoid FPS counter -->
+<canvas id="canvas"  tabindex="1"></canvas>
+<br/>
 <p id="FPS"> 0</p>
 
 <script id="skyboxvs" type="x-shader/x-vertex">

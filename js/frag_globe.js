@@ -1,3 +1,12 @@
+	
+var message = document.getElementById("message");
+var canvas = document.getElementById("canvas");
+window.addEventListener("resize", function(){
+	var canvasRatio = canvas.height / canvas.width;
+	canvas.style.width = window.innerWidth + 'px';
+	canvas.style.height = window.innerWidth * canvasRatio + 'px';
+});
+	
 (function() {
     "use strict";
     /*global window,document,Float32Array,Uint16Array,mat4,vec3,snoise*/
@@ -17,8 +26,11 @@
     var NUM_WIDTH_PTS = 64;
     var NUM_HEIGHT_PTS = 64;
 
-    var message = document.getElementById("message");
-    var canvas = document.getElementById("canvas");
+
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+
+	
     var gl = createWebGLContext(canvas, message);
     if (!gl) {
         return;
@@ -347,6 +359,8 @@
     function animate() {
         ///////////////////////////////////////////////////////////////////////////
         // Update
+		
+	
         var model = mat4.create();
         mat4.identity(model);
         mat4.rotate(model, 23.4 / 180 * Math.PI, [0.0, 0.0, 1.0]);
@@ -501,8 +515,9 @@
             document.getElementById("FPS").innerHTML = 'FPS=' + FPS;
         }
         ticks++;
-    }
-
+    };
+	
+	
     var textureCount = 0;
         
     function initializeTexture(texture, src) {
@@ -512,11 +527,12 @@
 
             // Animate once textures load.
             if (++textureCount === 6) {
+				//resize();
                 animate();
             }
         }
         texture.image.src = src;
-    }
+    };
 
     initializeTexture(dayTex, "assets/earthmap1024.png");
     initializeTexture(bumpTex, "assets/earthbump1024.png");
